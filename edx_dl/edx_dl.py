@@ -258,6 +258,7 @@ def main():
             page_title = "%02d - %s" % (lecturenum, page_title.replace(':', ' -'))
             lecturenum += 1
 
+            page_title = page_title.strip()
             if not os.path.exists(page_title):
                 os.makedirs(page_title)
             os.chdir(page_title)
