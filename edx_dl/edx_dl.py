@@ -236,7 +236,7 @@ def main():
 
     weeknum = 1
     for (week_name, week_urls) in weeks:
-        directory = week_name.strip().rstrip('.').replace(':', ' -')        
+        directory = week_name.strip().rstrip('.').replace(':', ' -')
         directory = "%02d - %s" % (weeknum, directory)
         weeknum += 1
                 
@@ -244,7 +244,7 @@ def main():
             os.makedirs(directory)
         os.chdir(directory)
         
-        videonum = 1
+        lecturenum = 1
         for url in week_urls:
             page = get_page_contents(url, headers)
             
@@ -255,8 +255,8 @@ def main():
             if page_title2 != None:
                 page_title = page_title2.group(1)
 
-            page_title = "%02d - %s" % (videonum, page_title.replace(':', ' -'))            
-            videonum += 1
+            page_title = "%02d - %s" % (lecturenum, page_title.replace(':', ' -'))
+            lecturenum += 1
 
             if not os.path.exists(page_title):
                 os.makedirs(page_title)
@@ -267,8 +267,13 @@ def main():
             for regexp in regexps:
                 id_container = re.findall(regexp, page)
                 logging.debug('New style got: %s', id_container)
+                
+                videonum = 1
                 for vid in id_container:
-                    os.system('youtube-dl --all-subs -f mp4 -- %s' % vid)                    
+                    video_filename = "%02d.mp4" % videonum
+                    cmd = "youtube-dl --all-subs -f mp4 -o %s" % video_filename
+                    os.system(cmd + " -- %s" % vid)
+                    videonum += 1
 
             try:
                 fnames = glob.glob('*.en.srt')
