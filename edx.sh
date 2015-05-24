@@ -12,3 +12,5 @@ do
 		let counter=0
 		cd ..
 	fi
+done <$1
+
