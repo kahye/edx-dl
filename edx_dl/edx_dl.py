@@ -15,7 +15,8 @@ import json
 import logging
 import re
 import sys
-
+import os
+import glob
 from bs4 import BeautifulSoup
 
 from . import compat
@@ -227,36 +228,58 @@ def main():
 
         weeks.append((week_name, week_urls))
 
-
     # FIXME: Take the week into consideration
     # FIXME: Transform this into a function
     # FIXME: Consider all courses here.
     c_id = args.course_id[0]
     logging.info('%s has %d weeks so far.', c_id, len(weeks))
 
-    links = [lec_url for week in weeks for lec_url in week[1]]
+    weeknum = 1
+    for (week_name, week_urls) in weeks:
+        directory = week_name.strip().rstrip('.').replace(':', '-')
+        directory = "%02d - %s" % (weeknum, directory)
+        weeknum += 1
+                
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        os.chdir(directory)
+        
+        videonum = 1
+        for url in week_urls:
+            page = get_page_contents(url, headers)
+            
+            soup = BeautifulSoup(page)
+            page_title = soup.title.text
+            page_title = page_title.strip()
+            page_title2 = re.search(b'(.*?)\|', page_title)
+            if page_title2 != None:
+                page_title = page_title2.group(1)
 
-    video_ids = []
-    for link in links:
-        logging.info("Processing '%s'...", link)
-        page = get_page_contents(link, headers)
-        logging.info('Got the contents of page %s', link)
+            page_title = "%02d - %s" % (videonum, page_title)
+            videonum += 1
 
-        # As edX has changed its layout during the time, here we try
-        # matching all the URL styles that we know about (so far).
-        #
-        # Old style:
-        # b'data-streams=&#34;(?:0.75:.{11}),1.00?:.{11},1.25:.{11},1.50:.{11}&#34;'
-        # New style:
-        # b'data-youtube-id-1-0=&#34;(.{11})&#34;'
+            if not os.path.exists(page_title):
+                os.makedirs(page_title)
+            os.chdir(page_title)
 
-        regexps = [b'data-streams=&#34;(?:0.75:.{11},)?1.00?:(.{11})',
-                   b'data-youtube-id-1-0=&#34;(.{11})&#34;']
-        for regexp in regexps:
-            id_container = re.findall(regexp, page)
-            logging.debug('New style got: %s', id_container)
-            for vid in id_container:
-                print(vid)
+            regexps = [b'data-streams=&#34;(?:0.75:.{11},)?1.00?:(.{11})',
+                        b'data-youtube-id-1-0=&#34;(.{11})&#34;']
+            for regexp in regexps:
+                id_container = re.findall(regexp, page)
+                logging.debug('New style got: %s', id_container)
+                for vid in id_container:
+                    os.system('youtube-dl %s --all-subs -f mp4' % vid)
+
+            try:
+                fnames = glob.glob('*.en.srt')
+            
+                for fname in fnames:
+                    os.rename(fname, fname[:-6] + 'srt')
+            except OSError:
+                pass
+    
+            os.chdir('..')
+        os.chdir('..')
 
 if __name__ == '__main__':
     main()
