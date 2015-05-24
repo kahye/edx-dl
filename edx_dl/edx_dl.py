@@ -255,7 +255,7 @@ def main():
             if page_title2 != None:
                 page_title = page_title2.group(1)
 
-            page_title = "%02d - %s" % (videonum, page_title)
+            page_title = "%02d - %s" % (videonum, page_title.replace(':', ' -'))            
             videonum += 1
 
             if not os.path.exists(page_title):
