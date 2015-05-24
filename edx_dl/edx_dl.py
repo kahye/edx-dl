@@ -268,7 +268,7 @@ def main():
                 id_container = re.findall(regexp, page)
                 logging.debug('New style got: %s', id_container)
                 for vid in id_container:
-                    os.system('youtube-dl %s --all-subs -f mp4' % vid)
+                    os.system('youtube-dl --all-subs -f mp4 -- %s' % vid)                    
 
             try:
                 fnames = glob.glob('*.en.srt')
