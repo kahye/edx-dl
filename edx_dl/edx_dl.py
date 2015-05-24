@@ -236,7 +236,7 @@ def main():
 
     weeknum = 1
     for (week_name, week_urls) in weeks:
-        directory = week_name.strip().rstrip('.').replace(':', '-')
+        directory = week_name.strip().rstrip('.').replace(':', ' -')        
         directory = "%02d - %s" % (weeknum, directory)
         weeknum += 1
                 
