@@ -236,7 +236,7 @@ def main():
 
     weeknum = 1
     for (week_name, week_urls) in weeks:
-        directory = week_name.strip().rstrip('.').replace(':', ' -')
+        directory = week_name.strip().rstrip('.').replace(':', ' -').replace('?', '')
         directory = "%02d - %s" % (weeknum, directory)
         weeknum += 1
                 
@@ -255,7 +255,7 @@ def main():
             if page_title2 != None:
                 page_title = page_title2.group(1)
 
-            page_title = "%02d - %s" % (lecturenum, page_title.replace(':', ' -'))
+            page_title = "%02d - %s" % (lecturenum, page_title.replace(':', ' -').replace('?', ''))
             lecturenum += 1
 
             page_title = page_title.strip()
